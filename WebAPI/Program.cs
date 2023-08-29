@@ -38,6 +38,10 @@ options.TokenValidationParameters = new TokenValidationParameters
 builder.Services.AddScoped<IUserDal, EfUserDal>();
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<IAuthService, AuthManager>();
+builder.Services.AddScoped<ICategoryDal, EfCategoryDal>();
+builder.Services.AddScoped<ICategoryService, CategoryManager>();
+builder.Services.AddScoped<ICityDal, EfCityDal>();
+builder.Services.AddScoped<ICityService, CityManager>();
 
 var app = builder.Build();
 

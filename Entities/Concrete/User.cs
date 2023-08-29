@@ -17,8 +17,6 @@ namespace Entities.Concrete
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
         public bool Status { get; set; }
-        public int? OperationClaimId { get; set; }
-        public OperationClaim OperationClaim { get; set; }
 
     }
 }

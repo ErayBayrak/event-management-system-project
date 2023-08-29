@@ -35,6 +35,8 @@ namespace Business.Concrete
             return userToCheck;
         }
 
+       
+
         public User Register(UserForRegisterDto request)
         {
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);

@@ -15,7 +15,11 @@ namespace DataAccess.Concrete.EntityFramework
             optionsBuilder.UseSqlServer(@"server=(localdb)\MSSQLLocalDB;database=DBEventManagement;integrated security=true");
         }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<OperationClaim> OperationClaims { get; set; }
+        public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<Event> Events { get; set; }
 
     }
 }

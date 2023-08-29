@@ -10,6 +10,9 @@ using Entities.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Business.Abstract;
+using Microsoft.AspNetCore.Identity;
+using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace WebAPI.Controllers
 {
@@ -40,6 +43,41 @@ namespace WebAPI.Controllers
             var registerResult = _authService.Register(request);
             return Ok(registerResult);
         }
+        [HttpPost("adminlogin")]
+        public async Task<ActionResult<string>> AdminLogin(UserForLoginDto request)
+        {
+            
+            if (request.Email == "admin@gmail.com" && request.Password == "admin")
+            {
+                List<Claim> claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.Name, "Admin admin"));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, request.Email));
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+
+                var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+                JwtSecurityToken securityToken = new JwtSecurityToken(
+                issuer: "https://localhost:44394",
+                 audience: "https://localhost:44394",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                  signingCredentials: creds
+                    );
+
+                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                string userToken = tokenHandler.WriteToken(securityToken);
+                return Ok(userToken);
+
+            }
+            else
+            {
+                return NotFound();
+            }
+
+        }
+
 
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(UserForLoginDto request)
@@ -168,15 +206,5 @@ namespace WebAPI.Controllers
             return Ok(user);
         }
 
-        //[HttpPost("addrole")]
-        //public IActionResult AddRole(OperationClaim claim)
-        //{
-        //    using (Context context = new Context())
-        //    {
-        //        context.OperationClaims.Add(claim);
-        //        context.SaveChanges();
-        //    }
-        //    return Ok(claim);
-        //}
     }
 }

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Entities.Concrete
 {
-    public class OperationClaim:IEntity
+    public class City:IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }
-         
+        public List<Event> Events { get; set; }
     }
 }
