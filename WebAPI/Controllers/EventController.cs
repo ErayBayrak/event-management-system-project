@@ -72,14 +72,19 @@ namespace WebAPI.Controllers
             eventEntity.Address = eventDto.Address;
             eventEntity.EventDate = eventDto.EventDate;
             eventEntity.LastApplicationEventDate = eventDto.LastApplicationEventDate;
-            eventEntity.Price= eventDto.Price;
             eventEntity.CategoryId = eventDto.CategoryId;
             eventEntity.CityId = eventDto.CityId;
             eventEntity.Description = eventDto.Description;
             eventEntity.Quota = eventDto.Quota;
             eventEntity.Name = eventDto.Name;
             eventEntity.IsTicket = eventDto.IsTicket;
-            eventEntity.IsApproved = eventDto.IsApproved;
+            eventEntity.IsApproved = false; //Admin onayı için onay bekleniyor.
+
+            if (eventDto.IsTicket)
+            {
+                eventEntity.Price = eventDto.Price;
+            }
+
             _eventService.Add(eventEntity);
             return Ok(eventEntity);
         }
