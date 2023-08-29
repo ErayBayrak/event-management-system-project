@@ -42,6 +42,8 @@ builder.Services.AddScoped<ICategoryDal, EfCategoryDal>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
 builder.Services.AddScoped<ICityDal, EfCityDal>();
 builder.Services.AddScoped<ICityService, CityManager>();
+builder.Services.AddScoped<IEventDal, EfEventDal>();
+builder.Services.AddScoped<IEventService, EventManager>();
 
 var app = builder.Build();
 
