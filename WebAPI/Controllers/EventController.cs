@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
             _userService = userService;
         }
         [Authorize(Roles = "Admin")]
-        [HttpPut("approve/{id}")]
+        [HttpPut("approve/{eventId}")]
         public IActionResult ApproveEvent(int eventId)
         {
             var eventToApprove = _eventService.Get(e => e.Id == eventId);
@@ -29,15 +29,15 @@ namespace WebAPI.Controllers
             {
                 eventToApprove.IsApproved = true;
                 _eventService.Update(eventToApprove);
-                return Ok();
+                return Ok("Etkinlik kabul edildi.");
             }
             else
             {
-                return NoContent();
+                return BadRequest();
             }
         }
         [Authorize(Roles = "Admin")]
-        [HttpPut("reject/{id}")]
+        [HttpPut("reject/{eventId}")]
         public IActionResult RejectEvent(int eventId)
         {
             var eventToReject = _eventService.Get(e => e.Id == eventId);
@@ -45,15 +45,15 @@ namespace WebAPI.Controllers
             {
                 eventToReject.IsApproved = false;
                 _eventService.Update(eventToReject);
-                return Ok();
+                return Ok("Etkinlik reddedildi.");
             }
             else
             {
-                return NoContent();
+                return BadRequest();
             }
         }
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteevent/{id}")]
+        [HttpDelete("deleteevent/{eventId}")]
         public IActionResult RemoveEvent(int eventId)
         {
             var eventToRemove = _eventService.Get(e => e.Id == eventId);
@@ -154,6 +154,21 @@ namespace WebAPI.Controllers
                 return Ok("Etkinlik başarıyla iptal edildi.");
             }
             return Ok("Etkinliği silemezsiniz.");
+        }
+        [Authorize] 
+        [HttpGet("myevents")]
+        public IActionResult GetUserEvents()
+        {
+            var currentUser = GetCurrentUser();
+
+            if (currentUser == null)
+            {
+                return BadRequest("Kullanıcı bilgisi alınamadı.");
+            }
+
+            var userEvents = _eventService.GetAll(e => e.UserId == currentUser.Id);
+
+            return Ok(userEvents);
         }
     }
 }
