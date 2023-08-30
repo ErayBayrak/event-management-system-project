@@ -33,7 +33,7 @@ options.TokenValidationParameters = new TokenValidationParameters
 );
 
 
-
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IUserDal, EfUserDal>();
 builder.Services.AddScoped<IUserService, UserManager>();

@@ -25,12 +25,12 @@ namespace Business.Concrete
 
             if (userToCheck.Email != request.Email)
             {
-                throw new Exception("User not found.");
+                throw new Exception("Kullanıcı bulunamadı.");
             }
 
             if (!VerifyPasswordHash(request.Password, userToCheck.PasswordHash, userToCheck.PasswordSalt))
             {
-                throw new Exception("Wrong password.");
+                throw new Exception("Şifre yanlış.");
             }
             return userToCheck;
         }
@@ -58,7 +58,7 @@ namespace Business.Concrete
         {
             if (_userService.GetByMail(email) != null)
             {
-                throw new Exception("User already exist.");
+                throw new Exception("Bu maile ait kullanıcı mevcut.");
             }
             return true;
 
@@ -87,11 +87,11 @@ namespace Business.Concrete
             var user = _userService.Get(x => x.Id == userId);
             if (user == null)
             {
-                throw new Exception("User not found.");
+                throw new Exception("Kullanıcı bulunamadı.");
             }
             if (!VerifyPasswordHash(oldPassword, user.PasswordHash, user.PasswordSalt))
             {
-                throw new Exception("Wrong password.");
+                throw new Exception("Şifre yanlış.");
             }
             CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
