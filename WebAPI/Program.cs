@@ -44,6 +44,8 @@ builder.Services.AddScoped<ICityDal, EfCityDal>();
 builder.Services.AddScoped<ICityService, CityManager>();
 builder.Services.AddScoped<IEventDal, EfEventDal>();
 builder.Services.AddScoped<IEventService, EventManager>();
+builder.Services.AddScoped<IAttendanceDal, EfAttendanceDal>();
+builder.Services.AddScoped<IAttendanceService, AttendanceManager>();
 
 var app = builder.Build();
 

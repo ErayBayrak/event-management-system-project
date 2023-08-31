@@ -20,6 +20,7 @@ namespace DataAccess.Concrete.EntityFramework
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Attendance> Attendances { get; set; }
 
     }
 }

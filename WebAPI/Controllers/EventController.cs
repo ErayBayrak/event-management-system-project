@@ -1,9 +1,11 @@
 ﻿using Business.Abstract;
+using DataAccess.Concrete.EntityFramework;
 using Entities.Concrete;
 using Entities.DTOs.Event;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace WebAPI.Controllers
@@ -15,10 +17,14 @@ namespace WebAPI.Controllers
     {
         IEventService _eventService;
         IUserService _userService;
-        public EventController(IEventService eventService,IUserService userService)
+        IAttendanceService _attendanceService;
+        Context context;
+        public EventController(IEventService eventService, IUserService userService, IAttendanceService attendanceService)
         {
             _eventService = eventService;
             _userService = userService;
+            context = new Context();
+            _attendanceService = attendanceService;
         }
         [Authorize(Roles = "Admin")]
         [HttpPut("approve/{eventId}")]
@@ -128,7 +134,7 @@ namespace WebAPI.Controllers
                 _eventService.Update(userEvent);
                 return Ok("Etkinlik bilgileri başarıyla güncellendi.");
             }
-            
+
             return Ok("Etkinlik zamanında kısa süre kaldığı için güncellenemedi.");
         }
         [Authorize]
@@ -155,7 +161,7 @@ namespace WebAPI.Controllers
             }
             return Ok("Etkinliği silemezsiniz.");
         }
-        [Authorize] 
+        [Authorize]
         [HttpGet("myevents")]
         public IActionResult GetUserEvents()
         {
@@ -170,5 +176,88 @@ namespace WebAPI.Controllers
 
             return Ok(userEvents);
         }
+        [Authorize]
+        [HttpGet("allevents")]
+        public IActionResult GetEvents()
+        {
+
+            List<EventCityCategoryDto> events = (
+                from e in context.Events
+                join ca in context.Categories on e.CategoryId equals ca.Id
+                join ci in context.Cities on e.CityId equals ci.Id
+                where e.IsApproved
+                select new EventCityCategoryDto()
+                {
+                    CategoryName = ca.Name,
+                    CityName = ci.Name,
+                    Name = e.Name,
+                    Address = e.Address,
+                    Description = e.Description,
+                    EventDate = e.EventDate,
+                    IsTicket = e.IsTicket,
+                    LastApplicationEventDate = e.LastApplicationEventDate,
+                    Price = e.Price,
+                    Quota = e.Quota,
+                }).ToList();
+            return Ok(events);
+        }
+        [Authorize]
+        [HttpGet("filterevents")]
+        public IActionResult FilterEvents(string? categoryName, string? cityName)
+        {
+            List<EventCityCategoryDto> events = (
+                from e in context.Events
+                join ca in context.Categories on e.CategoryId equals ca.Id
+                join ci in context.Cities on e.CityId equals ci.Id
+                where ca.Name == categoryName && ci.Name == cityName && e.IsApproved
+                select new EventCityCategoryDto()
+                {
+                    CategoryName = ca.Name,
+                    CityName = ci.Name,
+                    Name = e.Name,
+                    Address = e.Address,
+                    Description = e.Description,
+                    EventDate = e.EventDate,
+                    IsTicket = e.IsTicket,
+                    LastApplicationEventDate = e.LastApplicationEventDate,
+                    Price = e.Price,
+                    Quota = e.Quota,
+                }).ToList();
+            return Ok(events);
+        }
+
+        [Authorize]
+        [HttpPost("join")]
+        public IActionResult JoinEvent(int eventId)
+        {
+            var user = GetCurrentUser();
+            if (user == null)
+            {
+                return BadRequest("Kullanıcı bilgisi alınamadı.");
+            }
+
+            var eventToJoin = _eventService.Get(e => e.Id == eventId && e.IsApproved);
+            if (eventToJoin == null)
+            {
+                return NotFound("Etkinlik bulunamadı veya katılamazsınız.");
+            }
+
+            var attendanceCount = _attendanceService.GetAttendanceCountForEvent(eventId);
+            if (eventToJoin.Quota <= attendanceCount)
+            {
+                return BadRequest("Etkinlik kontenjanı dolmuş.");
+            }
+
+            var attendance = new Attendance
+            {
+                UserId = user.Id,
+                EventId = eventId
+            };
+
+            _attendanceService.Add(attendance);
+
+            return Ok("Etkinliğe katılım işlemi başarılı.");
+        }
+       
     }
 }
