@@ -258,6 +258,76 @@ namespace WebAPI.Controllers
 
             return Ok("Etkinliğe katılım işlemi başarılı.");
         }
-       
+        [Authorize]
+        [HttpGet("joinedevents")]
+        public IActionResult GetJoinedEvents()
+        {
+            var currentUser = GetCurrentUser();
+
+            if (currentUser == null)
+            {
+                return BadRequest("Kullanıcı bilgisi alınamadı.");
+            }
+
+            var joinedEvents = (
+                from a in context.Attendances
+                join e in context.Events on a.EventId equals e.Id
+                where a.UserId == currentUser.Id && e.EventDate < DateTime.Now
+                select new EventCityCategoryDto()
+                {
+                    CategoryName = e.Category.Name,
+                    CityName = e.City.Name,
+                    Name = e.Name,
+                    Address = e.Address,
+                    Description = e.Description,
+                    EventDate = e.EventDate,
+                    IsTicket = e.IsTicket,
+                    LastApplicationEventDate = e.LastApplicationEventDate,
+                    Price = e.Price,
+                    Quota = e.Quota,
+                }).ToList();
+            if(joinedEvents.Count < 1)
+            {
+                return NoContent();
+            }
+
+            return Ok(joinedEvents);
+        }
+
+        [Authorize]
+        [HttpGet("upcomingevents")]
+        public IActionResult GetUpcomingEvents()
+        {
+            var currentUser = GetCurrentUser();
+
+            if (currentUser == null)
+            {
+                return BadRequest("Kullanıcı bilgisi alınamadı.");
+            }
+
+            var upcomingEvents = (
+                from a in context.Attendances
+                join e in context.Events on a.EventId equals e.Id
+                where a.UserId == currentUser.Id && e.EventDate >= DateTime.Now
+                select new EventCityCategoryDto()
+                {
+                    CategoryName = e.Category.Name,
+                    CityName = e.City.Name,
+                    Name = e.Name,
+                    Address = e.Address,
+                    Description = e.Description,
+                    EventDate = e.EventDate,
+                    IsTicket = e.IsTicket,
+                    LastApplicationEventDate = e.LastApplicationEventDate,
+                    Price = e.Price,
+                    Quota = e.Quota,
+                }).ToList();
+            if (upcomingEvents.Count < 1)
+            {
+                return NoContent();
+            }
+
+            return Ok(upcomingEvents);
+        }
     }
 }
