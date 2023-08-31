@@ -14,12 +14,9 @@ namespace Business.Concrete
     public class AttendanceManager : IAttendanceService
     {
         IAttendanceDal _attendanceDal;
-        Context _context;
-
         public AttendanceManager(IAttendanceDal attendanceDal)
         {
             _attendanceDal = attendanceDal;
-            _context = new Context();
         }
 
         public void Add(Attendance attendance)
