@@ -13,8 +13,13 @@ namespace DataAccess.Concrete.EntityFramework
     {
         public int GetAttendanceCountForEvent(int eventId)
         {
-            Context context = new Context();
-            return context.Attendances.Count(a => a.EventId == eventId);
+            using (Context context = new Context())
+            {
+                var countOfAttendances = context.Attendances.Count(a=>a.EventId == eventId);
+                return countOfAttendances;
+            }
+            //Context context = new Context();
+            //return context.Attendances.Count(a => a.EventId == eventId);
         }
     }
 }
