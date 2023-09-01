@@ -1,6 +1,7 @@
 ﻿using Business.Abstract;
 using Entities.Concrete;
 using Entities.DTOs;
+using Entities.DTOs.Company;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,12 @@ namespace Business.Concrete
     {
 
         private readonly IUserService _userService;
+        ICompanyService _companyService;
 
-        public AuthManager(IUserService userService)
+        public AuthManager(IUserService userService, ICompanyService companyService)
         {
             _userService = userService;
+            _companyService = companyService;
         }
         public User Login(UserForLoginDto request)
         {
@@ -34,8 +37,19 @@ namespace Business.Concrete
             }
             return userToCheck;
         }
-
-       
+        public Company CompanyLogin(CompanyForLoginDto companyForLoginDto)
+        {
+            var companyToCheck = _companyService.GetByMail(companyForLoginDto.Email);
+            if (companyToCheck.Email != companyForLoginDto.Email)
+            {
+                throw new Exception("Kullanıcı bulunamadı.");
+            }
+            if (!VerifyPasswordHash(companyForLoginDto.Password, companyToCheck.PasswordHash, companyToCheck.PasswordSalt))
+            {
+                throw new Exception("Şifre yanlış.");
+            }
+            return companyToCheck;
+        }
 
         public User Register(UserForRegisterDto request)
         {
@@ -54,6 +68,22 @@ namespace Business.Concrete
             _userService.Add(user);
             return user;
         }
+
+        public Company CompanyRegister(CompanyForRegisterDto companyForRegisterDto)
+        {
+            CreatePasswordHash(companyForRegisterDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            var company = new Company
+            {
+                Email = companyForRegisterDto.Email,
+                Name = companyForRegisterDto.Name,
+                WebDomain = companyForRegisterDto.WebDomain,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt
+            };
+            _companyService.Add(company);
+            return company;
+        }
+
         public bool UserExists(string email)
         {
             if (_userService.GetByMail(email) != null)
@@ -62,6 +92,14 @@ namespace Business.Concrete
             }
             return true;
 
+        }
+        public bool CompanyExists(string email)
+        {
+            if (_companyService.GetByMail(email) != null)
+            {
+                throw new Exception("Bu maile ait kullanıcı mevcut.");
+            }
+            return true;
         }
 
 

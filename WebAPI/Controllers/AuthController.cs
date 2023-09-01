@@ -13,6 +13,7 @@ using Business.Abstract;
 using Microsoft.AspNetCore.Identity;
 using System.Text;
 using static System.Net.WebRequestMethods;
+using Entities.DTOs.Company;
 
 namespace WebAPI.Controllers
 {
@@ -42,6 +43,17 @@ namespace WebAPI.Controllers
             }
             var registerResult = _authService.Register(request);
             return Ok(registerResult);
+        }
+        [HttpPost("companyregister")]
+        public async Task<ActionResult<Company>> CompanyRegister(CompanyForRegisterDto dto)
+        {
+            var companyExists = _authService.CompanyExists(dto.Email);
+            if (!companyExists)
+            {
+                return BadRequest("Bu maile kayıtlı kullanıcı mevcut");
+            }
+            var registerResult = _authService.CompanyRegister(dto);
+            return Ok(registerResult);  
         }
         [HttpPost("adminlogin")]
         public async Task<ActionResult<string>> AdminLogin(UserForLoginDto request)
@@ -77,7 +89,13 @@ namespace WebAPI.Controllers
             }
 
         }
-
+        [HttpPost("companylogin")]
+        public async Task<ActionResult<string>> CompanyLogin(CompanyForLoginDto request)
+        {
+            var companyToLogin = _authService.CompanyLogin(request);
+            string token = CreateTokenForCompany(companyToLogin);
+            return Ok(token);
+        }
 
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(UserForLoginDto request)
@@ -93,6 +111,35 @@ namespace WebAPI.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             return Ok();
+        }
+        private string CreateTokenForCompany(Company company)
+        {
+
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email,company.Email),
+                new Claim(ClaimTypes.Role,"Company")
+            };
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                issuer: "https://localhost:44394",
+                audience: "https://localhost:44394",
+                         claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                notBefore: DateTime.Now,
+                signingCredentials: creds
+                );
+
+
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+
         }
 
         private string CreateToken(User user)
