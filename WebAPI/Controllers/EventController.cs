@@ -93,6 +93,7 @@ namespace WebAPI.Controllers
             if (eventDto.IsTicket)
             {
                 eventEntity.Price = eventDto.Price;
+                eventEntity.CompanyId = eventDto.CompanyId;
             }
 
             _eventService.Add(eventEntity);
@@ -330,6 +331,34 @@ namespace WebAPI.Controllers
             }
 
             return Ok(upcomingEvents);
+        }
+        [Authorize]
+        [HttpGet("eventforcompany/{eventId}")]
+        public IActionResult GetEventForCompany(int eventId)
+        {
+            var eventEntity = context.Events
+                .Include(e => e.Company)
+                .FirstOrDefault(e => e.Id == eventId);
+
+            if (eventEntity == null)
+            {
+                return NotFound("Etkinlik bulunamadı.");
+            }
+
+            var company = eventEntity.Company;
+
+            if (company == null)
+            {
+                return NotFound("Firma bulunamadı.");
+            }
+
+            var companyInfo = new
+            {
+                CompanyName = company.Name,
+                CompanyWebDomain = company.WebDomain
+            };
+
+            return Ok(companyInfo);
         }
     }
 }

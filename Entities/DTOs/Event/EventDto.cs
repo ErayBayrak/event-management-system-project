@@ -19,6 +19,7 @@ namespace Entities.DTOs.Event
         public bool IsApproved { get; set; }
         public int CityId { get; set; }
         public int CategoryId { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
+        public int? CompanyId { get; set; }
     }
 }
