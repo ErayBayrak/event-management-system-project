@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mime;
 using System.Security.Claims;
 
 namespace WebAPI.Controllers
@@ -178,6 +179,7 @@ namespace WebAPI.Controllers
         }
         [Authorize]
         [HttpGet("allevents")]
+        [Produces(MediaTypeNames.Application.Xml,MediaTypeNames.Application.Json)]
         public IActionResult GetEvents()
         {
 
