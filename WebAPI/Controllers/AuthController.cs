@@ -103,13 +103,6 @@ namespace WebAPI.Controllers
             string token = CreateToken(userToLogin);
             return Ok(token);
         }
-        [HttpPost("logout")]
-        public async Task<IActionResult> LogOut()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            return Ok();
-        }
         private string CreateTokenForCompany(Company company)
         {
 
