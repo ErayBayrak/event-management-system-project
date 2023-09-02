@@ -332,7 +332,7 @@ namespace WebAPI.Controllers
 
             return Ok(upcomingEvents);
         }
-        [Authorize]
+        [Authorize(Roles ="Company")]
         [HttpGet("eventforcompany/{eventId}")]
         public IActionResult GetEventForCompany(int eventId)
         {
