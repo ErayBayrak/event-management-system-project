@@ -14,6 +14,8 @@ using System.Text;
 using static System.Net.WebRequestMethods;
 using Entities.DTOs.Company;
 using Entities.DTOs.User;
+using WebAPI.Models;
+using Microsoft.Extensions.Options;
 
 namespace WebAPI.Controllers
 {
@@ -25,12 +27,14 @@ namespace WebAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
         private readonly IUserService _userService;
+        private readonly TokenOption _tokenOption;
 
-        public AuthController(IConfiguration configuration, IAuthService authService, IUserService userService)
+        public AuthController(IConfiguration configuration, IAuthService authService, IUserService userService, IOptions<TokenOption> options)
         {
             _configuration = configuration;
             _authService = authService;
             _userService = userService;
+            _tokenOption = options.Value;
         }
 
         [HttpPost("register")]
@@ -66,16 +70,12 @@ namespace WebAPI.Controllers
                 claims.Add(new Claim(ClaimTypes.NameIdentifier, request.Email));
                 claims.Add(new Claim(ClaimTypes.Role, "Admin"));
 
-                var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
-
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
                 JwtSecurityToken securityToken = new JwtSecurityToken(
-                issuer: "https://localhost:44394",
-                 audience: "https://localhost:44394",
+                issuer: _tokenOption.Issuer,
+                 audience: _tokenOption.Audience,
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                  signingCredentials: creds
+                expires: DateTime.Now.AddDays(_tokenOption.AccessTokenExpiration),
+                  signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOption.Token)), SecurityAlgorithms.HmacSha512Signature)
                     );
 
                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
@@ -121,17 +121,13 @@ namespace WebAPI.Controllers
                 new Claim(ClaimTypes.Role,"Company")
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
             var token = new JwtSecurityToken(
-                issuer: "https://localhost:44394",
-                audience: "https://localhost:44394",
+                issuer: _tokenOption.Issuer,
+                audience: _tokenOption.Audience,
                          claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddDays(_tokenOption.AccessTokenExpiration),
                 notBefore: DateTime.Now,
-                signingCredentials: creds
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOption.Token)), SecurityAlgorithms.HmacSha512Signature)
                 );
 
 
@@ -150,17 +146,13 @@ namespace WebAPI.Controllers
                 new Claim(ClaimTypes.Email,user.Email)
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
             var token = new JwtSecurityToken(
-                issuer: "https://localhost:44394",
-                audience: "https://localhost:44394",
+                issuer: _tokenOption.Issuer,
+                audience: _tokenOption.Audience,
                          claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddDays(_tokenOption.AccessTokenExpiration),
                 notBefore: DateTime.Now,
-                signingCredentials: creds
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOption.Token)), SecurityAlgorithms.HmacSha512Signature)
                 );
 
 
@@ -231,13 +223,7 @@ namespace WebAPI.Controllers
         [HttpGet("profile")]
         public async Task<ActionResult<User>> GetUserProfile()
         {
-            //var user = _userService.GetByMail(email); 
-            //if (user == null)
-            //{
-            //    return NotFound("Kullanıcı bulunamadı.");
-            //}
-            //return Ok(user); 
-
+           
             var userEmailClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
             if (userEmailClaim == null)
             {

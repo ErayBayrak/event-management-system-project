@@ -5,6 +5,8 @@ using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using WebAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,23 +18,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScopeBL();
 
-string tokenKey = builder.Configuration.GetSection("AppSettings:Token").Value;
-string audience = builder.Configuration.GetSection("AppSettings:Audience").Value;
-string issuer = builder.Configuration.GetSection("AppSettings:Issuer").Value;
-SecurityKey key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenKey));
+builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("AppSettings"));
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-options.TokenValidationParameters = new TokenValidationParameters
-{
-    ValidateIssuer = true,
-    ValidateAudience = true,
-    ValidateLifetime = true,
-    ValidIssuer = audience,
-    ValidAudience = issuer,
-    ValidateIssuerSigningKey = true,
-    IssuerSigningKey = key
-}
-);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+
+        TokenOption tokenOption = builder.Configuration.GetSection("AppSettings").Get<TokenOption>();
+
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidIssuer = tokenOption.Issuer,
+            ValidAudience = tokenOption.Audience,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOption.Token))
+        };
+    });
 
 
 builder.Services.AddHttpContextAccessor();
