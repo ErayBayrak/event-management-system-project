@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         public bool ValidateToken(string token)
         {
-            var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_tokenOption.Token));
             try
             {
                 JwtSecurityTokenHandler handler = new();

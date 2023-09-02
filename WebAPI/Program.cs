@@ -18,13 +18,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScopeBL();
 
-builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("TokenOption"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
 
-        TokenOption tokenOption = builder.Configuration.GetSection("AppSettings").Get<TokenOption>();
+        TokenOption tokenOption = builder.Configuration.GetSection("TokenOption").Get<TokenOption>();
 
         options.TokenValidationParameters = new TokenValidationParameters()
         {
