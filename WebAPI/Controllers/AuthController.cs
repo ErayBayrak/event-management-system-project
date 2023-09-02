@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Entities.Concrete;
 using DataAccess.Concrete.EntityFramework;
-using Entities.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Business.Abstract;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Text;
 using static System.Net.WebRequestMethods;
 using Entities.DTOs.Company;
+using Entities.DTOs.User;
 
 namespace WebAPI.Controllers
 {

@@ -1,4 +1,4 @@
-﻿namespace Entities.DTOs
+﻿namespace Entities.DTOs.User
 {
     public class UserForLoginDto
     {

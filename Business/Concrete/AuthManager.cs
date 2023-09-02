@@ -1,7 +1,7 @@
 ﻿using Business.Abstract;
 using Entities.Concrete;
-using Entities.DTOs;
 using Entities.DTOs.Company;
+using Entities.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
