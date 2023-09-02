@@ -18,8 +18,6 @@ namespace DataAccess.Concrete.EntityFramework
                 var countOfAttendances = context.Attendances.Count(a=>a.EventId == eventId);
                 return countOfAttendances;
             }
-            //Context context = new Context();
-            //return context.Attendances.Count(a => a.EventId == eventId);
         }
     }
 }
