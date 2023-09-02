@@ -24,14 +24,12 @@ namespace WebAPI.Controllers
     public class AuthController : ControllerBase
     {
         public static User user = new User();
-        private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
         private readonly IUserService _userService;
         private readonly TokenOption _tokenOption;
 
-        public AuthController(IConfiguration configuration, IAuthService authService, IUserService userService, IOptions<TokenOption> options)
+        public AuthController( IAuthService authService, IUserService userService, IOptions<TokenOption> options)
         {
-            _configuration = configuration;
             _authService = authService;
             _userService = userService;
             _tokenOption = options.Value;
