@@ -1,3 +1,4 @@
+using Business;
 using Business.Abstract;
 using Business.Concrete;
 using DataAccess.Abstract;
@@ -13,6 +14,7 @@ builder.Services.AddControllers().AddXmlSerializerFormatters();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScopeBL();
 
 string tokenKey = builder.Configuration.GetSection("AppSettings:Token").Value;
 string audience = builder.Configuration.GetSection("AppSettings:Audience").Value;
@@ -34,20 +36,6 @@ options.TokenValidationParameters = new TokenValidationParameters
 
 
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<IUserDal, EfUserDal>();
-builder.Services.AddScoped<IUserService, UserManager>();
-builder.Services.AddScoped<IAuthService, AuthManager>();
-builder.Services.AddScoped<ICategoryDal, EfCategoryDal>();
-builder.Services.AddScoped<ICategoryService, CategoryManager>();
-builder.Services.AddScoped<ICityDal, EfCityDal>();
-builder.Services.AddScoped<ICityService, CityManager>();
-builder.Services.AddScoped<IEventDal, EfEventDal>();
-builder.Services.AddScoped<IEventService, EventManager>();
-builder.Services.AddScoped<IAttendanceDal, EfAttendanceDal>();
-builder.Services.AddScoped<IAttendanceService, AttendanceManager>();
-builder.Services.AddScoped<ICompanyDal, EfCompanyDal>();
-builder.Services.AddScoped<ICompanyService, CompanyManager>();
 
 var app = builder.Build();
 
